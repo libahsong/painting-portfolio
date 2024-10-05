@@ -1,193 +1,294 @@
-import * as React from "react"
-import type { HeadFC, PageProps } from "gatsby"
+import React, { useEffect, useState } from "react";
+import { graphql, Link, PageProps } from "gatsby";
+import Layout from "../components/Layout";
+import Seo from "../components/Seo";
+import {
+  GatsbyImage,
+  getImage,
+  IGatsbyImageData,
+  StaticImage,
+} from "gatsby-plugin-image";
+import styled from "styled-components";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 
-const pageStyles = {
-  color: "#232129",
-  padding: 96,
-  fontFamily: "-apple-system, Roboto, sans-serif, serif",
-}
-const headingStyles = {
-  marginTop: 0,
-  marginBottom: 64,
-  maxWidth: 320,
-}
-const headingAccentStyles = {
-  color: "#663399",
-}
-const paragraphStyles = {
-  marginBottom: 48,
-}
-const codeStyles = {
-  color: "#8A6534",
-  padding: 4,
-  backgroundColor: "#FFF4DB",
-  fontSize: "1.25rem",
-  borderRadius: 4,
-}
-const listStyles = {
-  marginBottom: 96,
-  paddingLeft: 0,
-}
-const doclistStyles = {
-  paddingLeft: 0,
-}
-const listItemStyles = {
-  fontWeight: 300,
-  fontSize: 24,
-  maxWidth: 560,
-  marginBottom: 30,
-}
+const Container = styled.div`
+  margin-top: 2vw;
+  display: flex;
+  justify-content: center;
+  /* padding: 3vw 0 0; */
+  /* position: relative; */
+`;
+const Paintings1 = styled(motion.div)`
+  --column-gutter: 24px;
+  --columns: 2;
+  /* display: grid; */
+  /* grid-template-columns: 1fr 1fr; */
+  /* grid-gap: 1vw; */
+  /* width: 960px; */
+  width: 90%;
+  /* margin: 0 auto; */
+  display: grid;
+  grid-column-gap: var(--column-gutter);
+  align-items: start;
+  /* grid-template-rows: auto; */
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  box-sizing: border-box;
+  /* position: relative; */
+`;
+const Paintings = styled(motion.div)`
+  box-sizing: border-box;
+  width: 90%;
+`;
 
-const linkStyle = {
-  color: "#8954A8",
-  fontWeight: "bold",
-  fontSize: 16,
-  verticalAlign: "5%",
-}
+const PaintingContainer = styled(motion.div)`
+  position: relative;
+  /* height: 30vw; */
+`;
 
-const docLinkStyle = {
-  ...linkStyle,
-  listStyleType: "none",
-  display: `inline-block`,
-  marginBottom: 24,
-  marginRight: 12,
-}
-
-const descriptionStyle = {
-  color: "#232129",
-  fontSize: 14,
-  marginTop: 10,
-  marginBottom: 0,
-  lineHeight: 1.25,
-}
-
-const docLinks = [
-  {
-    text: "TypeScript Documentation",
-    url: "https://www.gatsbyjs.com/docs/how-to/custom-configuration/typescript/",
-    color: "#8954A8",
-  },
-  {
-    text: "GraphQL Typegen Documentation",
-    url: "https://www.gatsbyjs.com/docs/how-to/local-development/graphql-typegen/",
-    color: "#8954A8",
+const Painting1 = styled(motion.div)`
+  /* display: block; */
+  /* float: left; */
+  /* position: relative; */
+  cursor: zoom-in;
+  /* width: 35vw; */
+  padding: 1vw;
+  /* height: 20vw; */
+  /* width: 100%; */
+  /* position: absolute; */
+  /* height: 100%; */
+  img {
+    /* width: 100%; */
+    /* position: absolute; */
+    /* height: 100%; */
   }
-]
+`;
 
-const badgeStyle = {
-  color: "#fff",
-  backgroundColor: "#088413",
-  border: "1px solid #088413",
-  fontSize: 11,
-  fontWeight: "bold",
-  letterSpacing: 1,
-  borderRadius: 4,
-  padding: "4px 6px",
-  display: "inline-block",
-  position: "relative" as "relative",
-  top: -2,
-  marginLeft: 10,
-  lineHeight: 1,
+const Painting = styled(motion.div)`
+  margin: 0.5vw;
+  display: block;
+  float: left;
+  position: relative;
+  cursor: pointer;
+  height: 22vw;
+  &:hover {
+    transform: scale(1.03);
+    transition: 0.5s;
+  }
+  div {
+    height: 100%;
+  }
+  img {
+    /* margin: 1vw; */
+    height: 100%;
+
+    /* width: 50%; */
+    /* position: absolute; */
+  }
+`;
+
+const Overlay = styled(motion.div)`
+  background-color: rgba(245, 245, 245, 0.7);
+  height: 200%;
+  width: 100%;
+  position: absolute;
+  z-index: 1;
+  opacity: 0;
+  padding: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  //preventing text/element selection with cursor drag
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+`;
+
+const SlideContainer = styled(motion.div)`
+  width: 100%;
+  height: 100%;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+`;
+const Slide = styled(motion.div)`
+  z-index: 2;
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* margin: 0 auto; */
+  /* width: 50%; */
+  /* height: 25%; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Image = styled(motion.div)`
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
+    rgba(0, 0, 0, 0.22) 0px 10px 10px;
+`;
+
+const Prev = styled(motion.div)`
+  padding: 2vw;
+  color: grey;
+  font-size: 2vw;
+  z-index: 10;
+  /* bottom: 0; */
+  left: 0;
+  position: absolute;
+  cursor: pointer;
+`;
+const Next = styled(motion.div)`
+  position: absolute;
+  padding: 2vw;
+  /* bottom: 0; */
+  right: 0;
+  color: grey;
+  font-weight: 100;
+  font-size: 2vw;
+  z-index: 10;
+  cursor: pointer;
+`;
+
+interface IPortfolio {
+  readonly id: string;
+  readonly name: string | null;
+  readonly painting: {
+    readonly title: string | null;
+    readonly gatsbyImageData: IGatsbyImageData | null;
+  } | null;
 }
+export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
+  console.log(data.allContentfulPortfolio.nodes);
 
-const links = [
-  {
-    text: "Tutorial",
-    url: "https://www.gatsbyjs.com/docs/tutorial/getting-started/",
-    description:
-      "A great place to get started if you're new to web development. Designed to guide you through setting up your first Gatsby site.",
-    color: "#E95800",
-  },
-  {
-    text: "How to Guides",
-    url: "https://www.gatsbyjs.com/docs/how-to/",
-    description:
-      "Practical step-by-step guides to help you achieve a specific goal. Most useful when you're trying to get something done.",
-    color: "#1099A8",
-  },
-  {
-    text: "Reference Guides",
-    url: "https://www.gatsbyjs.com/docs/reference/",
-    description:
-      "Nitty-gritty technical descriptions of how Gatsby works. Most useful when you need detailed information about Gatsby's APIs.",
-    color: "#BC027F",
-  },
-  {
-    text: "Conceptual Guides",
-    url: "https://www.gatsbyjs.com/docs/conceptual/",
-    description:
-      "Big-picture explanations of higher-level Gatsby concepts. Most useful for building understanding of a particular topic.",
-    color: "#0D96F2",
-  },
-  {
-    text: "Plugin Library",
-    url: "https://www.gatsbyjs.com/plugins",
-    description:
-      "Add functionality and customize your Gatsby site or app with thousands of plugins built by our amazing developer community.",
-    color: "#8EB814",
-  },
-  {
-    text: "Build and Host",
-    url: "https://www.gatsbyjs.com/cloud",
-    badge: true,
-    description:
-      "Now you’re ready to show the world! Give your Gatsby site superpowers: Build and host on Gatsby Cloud. Get started for free!",
-    color: "#663399",
-  },
-]
+  const [allPortpolios, setAllPortpolios] = useState<IPortfolio[]>();
+  const [index, setIndex] = useState(0);
+  const [clicked, setClicked] = useState(false);
+  const [imageSrc, setImageSrc] = useState<object>();
+  const { scrollY } = useScroll();
 
-const IndexPage: React.FC<PageProps> = () => {
+  useEffect(() => {
+    const array = [...data.allContentfulPortfolio.nodes];
+    console.log("array", array);
+    setAllPortpolios(array);
+  }, []);
+
+  const prevClicking = () => {
+    console.log(allPortpolios!.length);
+    if (index === 0) setIndex(allPortpolios!.length);
+    setIndex((prev) => prev - 1);
+  };
+  const nextClicking = () => {
+    if (index === allPortpolios!.length - 1) {
+      setIndex(0);
+    } else {
+      setIndex((prev) => prev + 1);
+    }
+  };
+
   return (
-    <main style={pageStyles}>
-      <h1 style={headingStyles}>
-        Congratulations
-        <br />
-        <span style={headingAccentStyles}>— you just made a Gatsby site! 🎉🎉🎉</span>
-      </h1>
-      <p style={paragraphStyles}>
-        Edit <code style={codeStyles}>src/pages/index.tsx</code> to see this page
-        update in real-time. 😎
-      </p>
-      <ul style={doclistStyles}>
-        {docLinks.map(doc => (
-          <li key={doc.url} style={docLinkStyle}>
-            <a
-              style={linkStyle}
-              href={`${doc.url}?utm_source=starter&utm_medium=ts-docs&utm_campaign=minimal-starter-ts`}
+    <>
+      {clicked ? (
+        <Overlay
+          animate={{ opacity: clicked ? 1 : 0 }}
+          transition={{ type: "tween", duration: 0.5 }}
+          onTap={() => console.log("onClicked!!!!")}
+          onClick={() => {
+            console.log("onClicked!!!!");
+            setClicked(false);
+            console.log("allPortpolios", allPortpolios);
+          }}
+        >
+          <Slide style={{ top: scrollY.get() + 100 }}>
+            <Prev
+              onDragStart={(event) => event.preventDefault()}
+              onDragOver={(event) => event.preventDefault()}
+              onDrag={(event) => event.preventDefault()}
+              onClick={(event) => {
+                prevClicking();
+                console.log("PrevButton!!!!");
+                event.stopPropagation();
+
+                console.log("allPortpolios", allPortpolios);
+              }}
             >
-              {doc.text}
-            </a>
-          </li>
-        ))}
-      </ul>
-      <ul style={listStyles}>
-        {links.map(link => (
-          <li key={link.url} style={{ ...listItemStyles, color: link.color }}>
-            <span>
-              <a
-                style={linkStyle}
-                href={`${link.url}?utm_source=starter&utm_medium=start-page&utm_campaign=minimal-starter-ts`}
+              <b>&#10094;</b>
+            </Prev>
+            <AnimatePresence>
+              <Image
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
               >
-                {link.text}
-              </a>
-              {link.badge && (
-                <span style={badgeStyle} aria-label="New Badge">
-                  NEW!
-                </span>
-              )}
-              <p style={descriptionStyle}>{link.description}</p>
-            </span>
-          </li>
-        ))}
-      </ul>
-      <img
-        alt="Gatsby G Logo"
-        src="data:image/svg+xml,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2a10 10 0 110 20 10 10 0 010-20zm0 2c-3.73 0-6.86 2.55-7.75 6L14 19.75c3.45-.89 6-4.02 6-7.75h-5.25v1.5h3.45a6.37 6.37 0 01-3.89 4.44L6.06 9.69C7 7.31 9.3 5.63 12 5.63c2.13 0 4 1.04 5.18 2.65l1.23-1.06A7.959 7.959 0 0012 4zm-8 8a8 8 0 008 8c.04 0 .09 0-8-8z' fill='%23639'/%3E%3C/svg%3E"
-      />
-    </main>
-  )
+                {/* <GatsbyImage image={getImage(imageSrc!)!} alt="image" />
+                 */}
+                <GatsbyImage
+                  image={
+                    getImage(allPortpolios![index].painting!.gatsbyImageData!)!
+                  }
+                  alt={allPortpolios![index].painting?.title!}
+                />
+              </Image>
+            </AnimatePresence>
+            <Next
+              onClick={(event) => {
+                nextClicking();
+                event.stopPropagation();
+                console.log("allPortpolios", allPortpolios);
+              }}
+            >
+              <b>&#10095;</b>
+            </Next>
+          </Slide>
+        </Overlay>
+      ) : null}
+      <Layout title="Home">
+        <Container>
+          <Paintings>
+            {/* {data.allContentfulPortfolio.nodes.map((portfolio) => ( */}
+            {allPortpolios?.map((portfolio) => (
+              <Painting
+                key={portfolio.id}
+                onClick={() => {
+                  setClicked(true);
+                  setImageSrc(portfolio.painting?.gatsbyImageData!);
+                  setIndex(allPortpolios.indexOf(portfolio));
+                  console.log(allPortpolios.indexOf(portfolio));
+                }}
+              >
+                {/* <Link to={`/paintings/${portfolio.id}`}> */}
+                <GatsbyImage
+                  image={getImage(portfolio.painting!.gatsbyImageData!)!}
+                  alt={portfolio.painting!.title!}
+                />
+                {/* <h2>{portfolio.name}</h2> */}
+                {/* </Link> */}
+              </Painting>
+            ))}
+          </Paintings>
+        </Container>
+      </Layout>
+    </>
+  );
 }
 
-export default IndexPage
+export const query = graphql`
+  query Portfolio {
+    allContentfulPortfolio(sort: { createdAt: DESC }) {
+      nodes {
+        id
+        name
+        painting {
+          title
+          gatsbyImageData(placeholder: BLURRED, height: 700)
+        }
+      }
+    }
+  }
+`;
 
-export const Head: HeadFC = () => <title>Home Page</title>
+export const Head = () => <Seo title="Home" />;
