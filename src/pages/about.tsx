@@ -54,11 +54,11 @@ export default function About({ data }: PageProps<Queries.myImageQuery>) {
             rainy days. <br />I am also interested in programm developing. I
             built this portfolio website by Typescript and other data management
             application. <br />
-            It brings me joy to meet with you and I am eager to collaborate with
-            you.
+            It brings me joy to meet with you. If you have any other questions
+            contact me directly.
             <br />
             <br />
-            <div>Email me here, libah8@naver.com</div>
+            <div>libah8@naver.com</div>
           </Text>
         </Container>
       </Wrapper>
