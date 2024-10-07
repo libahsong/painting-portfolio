@@ -37,7 +37,7 @@ const Paintings1 = styled(motion.div)`
 `;
 const Paintings = styled(motion.div)`
   box-sizing: border-box;
-  width: 90%;
+  width: 70%;
 `;
 
 const PaintingContainer = styled(motion.div)`
@@ -64,6 +64,7 @@ const Painting1 = styled(motion.div)`
 `;
 
 const Painting = styled(motion.div)`
+  border: 1px solid green;
   margin: 0.5vw;
   display: block;
   float: left;
@@ -87,10 +88,12 @@ const Painting = styled(motion.div)`
 `;
 
 const Overlay = styled(motion.div)`
-  background-color: rgba(245, 245, 245, 0.7);
-  height: 200%;
+  /* background-color: rgba(245, 245, 245, 0.7); */
+  background-color: rgb(25, 25, 25, 0.9);
+  /* height: 100%; */
   width: 100%;
-  position: absolute;
+  /* position: absolute; */
+  position: fixed;
   z-index: 1;
   opacity: 0;
   padding: 0;
@@ -162,6 +165,16 @@ interface IPortfolio {
     readonly gatsbyImageData: IGatsbyImageData | null;
   } | null;
 }
+
+const imageVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { type: "tween", duration: 0.5 } },
+  exit: {
+    opacity: 0,
+    transition: { type: "tween", duration: 0.5 },
+  },
+};
+
 export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
   console.log(data.allContentfulPortfolio.nodes);
 
@@ -169,6 +182,7 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
   const [index, setIndex] = useState(0);
   const [clicked, setClicked] = useState(false);
   const [imageSrc, setImageSrc] = useState<object>();
+  const [back, setBack] = useState(false);
   const { scrollY } = useScroll();
 
   useEffect(() => {
@@ -203,7 +217,8 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
             console.log("allPortpolios", allPortpolios);
           }}
         >
-          <Slide style={{ top: scrollY.get() + 100 }}>
+          {/* <Slide style={{ top: scrollY.get() + 100 }}> */}
+          <Slide style={{ top: 100 }}>
             <Prev
               onDragStart={(event) => event.preventDefault()}
               onDragOver={(event) => event.preventDefault()}
@@ -218,8 +233,15 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
             >
               <b>&#10094;</b>
             </Prev>
-            <AnimatePresence>
+            <AnimatePresence mode="wait" initial={false} custom={back}>
               <Image
+                key={index}
+                custom={back}
+                variants={imageVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                // transition={{ type: "tween", duration: 1 }}
                 onClick={(event) => {
                   event.stopPropagation();
                 }}

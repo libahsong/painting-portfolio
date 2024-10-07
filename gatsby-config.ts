@@ -27,6 +27,18 @@ const config: GatsbyConfig = {
       resolve: `gatsby-source-filesystem`,
       options: { path: `${__dirname}/blog-posts` },
     },
+    {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        name: `GatsbyJS`,
+        short_name: `GatsbyJS`,
+        icon: "src/images/acorn.jpg",
+        start_url: `/`,
+        background_color: `#f7f0eb`,
+        theme_color: `#a2466c`,
+        display: `standalone`,
+      },
+    },
   ],
 };
 

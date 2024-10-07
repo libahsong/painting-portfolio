@@ -12,12 +12,8 @@ interface IBlogPostProps {
 export default function BlogPost({ data, children }: IBlogPostProps) {
   console.log(data);
 
-  const image = getImage(
-    data.mdx?.frontmatter?.headerImage?.childImageSharp?.gatsbyImageData!
-  );
   return (
     <Layout title="Blog Post">
-      <GatsbyImage image={image as any} alt={data.mdx?.frontmatter?.title!} />
       <div>{children}</div>
     </Layout>
   );
@@ -33,11 +29,6 @@ export const query = graphql`
         date
         title
         slug
-        headerImage {
-          childImageSharp {
-            gatsbyImageData(height: 450, placeholder: BLURRED)
-          }
-        }
       }
     }
   }
