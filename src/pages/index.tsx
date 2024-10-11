@@ -15,11 +15,13 @@ const Container = styled.div`
   margin-top: 2vw;
   display: flex;
   justify-content: center;
+  /* margin: 0 auto; */
+
   /* padding: 3vw 0 0; */
   /* position: relative; */
 `;
 const Paintings1 = styled(motion.div)`
-  --column-gutter: 24px;
+  --column-gutter: 1vw;
   --columns: 2;
   /* display: grid; */
   /* grid-template-columns: 1fr 1fr; */
@@ -28,16 +30,32 @@ const Paintings1 = styled(motion.div)`
   width: 90%;
   /* margin: 0 auto; */
   display: grid;
-  grid-column-gap: var(--column-gutter);
-  align-items: start;
+  /* grid-column-gap: var(--column-gutter); */
+  /* align-items: start; */
   /* grid-template-rows: auto; */
-  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
-  box-sizing: border-box;
+  /* grid-template-columns: repeat(var(--columns), minmax(0, 1fr)); */
+  /* grid-template-columns: 1fr 1fr; */
+  grid-column: 1 / 2;
+  grid-row: 3;
+  /* box-sizing: border-box; */
   /* position: relative; */
 `;
-const Paintings = styled(motion.div)`
-  box-sizing: border-box;
+
+const PWrapper = styled.div`
+  padding: 0;
   width: 70%;
+  display: flex;
+  justify-content: center;
+`;
+const Paintings = styled(motion.div)`
+  padding: 0;
+  /* width: 70%; */
+  /* width: 97%; */
+  /* column-count: 3; */
+  display: grid;
+  grid-template-columns: repeat(3, calc(98% / 3));
+  grid-gap: 1%;
+  /* grid-template-columns: calc(100% / 3); */
 `;
 
 const PaintingContainer = styled(motion.div)`
@@ -45,42 +63,41 @@ const PaintingContainer = styled(motion.div)`
   /* height: 30vw; */
 `;
 
-const Painting1 = styled(motion.div)`
-  /* display: block; */
-  /* float: left; */
-  /* position: relative; */
-  cursor: zoom-in;
-  /* width: 35vw; */
-  padding: 1vw;
-  /* height: 20vw; */
-  /* width: 100%; */
-  /* position: absolute; */
-  /* height: 100%; */
-  img {
-    /* width: 100%; */
-    /* position: absolute; */
-    /* height: 100%; */
-  }
-`;
+const Column = styled(motion.div)``;
 
 const Painting = styled(motion.div)`
-  border: 1px solid green;
-  margin: 0.5vw;
-  display: block;
-  float: left;
-  position: relative;
   cursor: pointer;
-  height: 22vw;
+  margin-bottom: 1vw;
+  /* grid-template-columns: calc(100% / 3); */
+`;
+
+const Painting1 = styled(motion.div)`
+  border: 1px solid green;
+  margin-bottom: 1vw;
+  /* display: inline-block; */
+  /* float: left; */
+  /* position: relative; */
+  /* position: absolute; */
+  box-sizing: border-box;
+  cursor: pointer;
+  /* height: 22vw; */
+  width: calc(100% / 2.5);
+  /* margin: 2% */
+  /* width: 25vw; */
   &:hover {
     transform: scale(1.03);
     transition: 0.5s;
   }
+  &:last-child {
+  }
   div {
-    height: 100%;
+    /* height: 100%; */
+    width: 100%;
   }
   img {
     /* margin: 1vw; */
-    height: 100%;
+    /* height: 100%; */
+    /* width: 100%; */
 
     /* width: 50%; */
     /* position: absolute; */
@@ -179,6 +196,7 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
   console.log(data.allContentfulPortfolio.nodes);
 
   const [allPortpolios, setAllPortpolios] = useState<IPortfolio[]>();
+  const [sortedPortpolios, setSortedPortpolios] = useState<IPortfolio[][]>();
   const [index, setIndex] = useState(0);
   const [clicked, setClicked] = useState(false);
   const [imageSrc, setImageSrc] = useState<object>();
@@ -187,8 +205,37 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
 
   useEffect(() => {
     const array = [...data.allContentfulPortfolio.nodes];
-    console.log("array", array);
+    // const array: any = [1, 2];
+    let sortedArray: IPortfolio[][] = [[], [], []];
+    const GRID = 3;
+    let i = 0;
+    const quo = Math.floor(array.length / GRID);
+    const remainder = Math.floor(array.length % GRID);
+    // console.log("quo", quo, array.length, "remainder", remainder);
+
+    let k = 0;
+    do {
+      if (array.length === 0) return;
+      sortedArray[k] = [...sortedArray[k], array[i]];
+      k = k + 1;
+      i = i + 1;
+      if (k === GRID) k = 0;
+      // if (i === LENGTH) {
+      //   console.log("LENGTH FINISH!!");
+      //   if (remainder === 1) {
+      //     sortedArray[0] = [...sortedArray[0], array[array.length - 1]];
+      //   } else if (remainder === 2) {
+      //     sortedArray[0] = [...sortedArray[0], array[array.length - 2]];
+      //     sortedArray[1] = [...sortedArray[1], array[array.length - 1]];
+      //   }
+      // }
+    } while (i < array.length);
+
+    // console.log(sortedArray);
     setAllPortpolios(array);
+    setSortedPortpolios(sortedArray);
+    // console.log("array", array);
+    // console.log("last", array[array.length - 1]);
   }, []);
 
   const prevClicking = () => {
@@ -270,8 +317,40 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
       ) : null}
       <Layout title="Home">
         <Container>
-          <Paintings>
-            {/* {data.allContentfulPortfolio.nodes.map((portfolio) => ( */}
+          <PWrapper>
+            <Paintings>
+              {sortedPortpolios?.map(
+                (portfolio, i) => (
+                  <Column>
+                    {portfolio.map((image, k) => (
+                      <Painting
+                        onClick={() => {
+                          setClicked(true);
+                          setImageSrc(image.painting?.gatsbyImageData!);
+                          setIndex(allPortpolios!.indexOf(image));
+                        }}
+                      >
+                        <GatsbyImage
+                          image={getImage(image.painting?.gatsbyImageData!)!}
+                          alt={image.name!}
+                        />
+                      </Painting>
+                    ))}
+                  </Column>
+                )
+                // portfolio.map((image, k) => (
+                //   <Painting key={k}>
+                //     <div>{k}</div>
+                //     <GatsbyImage
+                //       image={getImage(image.painting?.gatsbyImageData!)!}
+                //       alt={image.name!}
+                //     />
+                //   </Painting>
+                // ))
+              )}
+            </Paintings>
+          </PWrapper>
+          {/* <Paintings>
             {allPortpolios?.map((portfolio) => (
               <Painting
                 key={portfolio.id}
@@ -282,16 +361,13 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
                   console.log(allPortpolios.indexOf(portfolio));
                 }}
               >
-                {/* <Link to={`/paintings/${portfolio.id}`}> */}
                 <GatsbyImage
                   image={getImage(portfolio.painting!.gatsbyImageData!)!}
                   alt={portfolio.painting!.title!}
                 />
-                {/* <h2>{portfolio.name}</h2> */}
-                {/* </Link> */}
               </Painting>
             ))}
-          </Paintings>
+          </Paintings> */}
         </Container>
       </Layout>
     </>
@@ -300,7 +376,7 @@ export default function IndexPage({ data }: PageProps<Queries.PortfolioQuery>) {
 
 export const query = graphql`
   query Portfolio {
-    allContentfulPortfolio(sort: { createdAt: DESC }) {
+    allContentfulPortfolio(sort: { createdAt: ASC }) {
       nodes {
         id
         name

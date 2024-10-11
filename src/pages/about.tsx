@@ -19,7 +19,8 @@ const Wrapper = styled(motion.div)`
 const Container = styled(motion.div)`
   width: 80%;
   display: flex;
-  justify-content: space-around;
+  /* justify-content: space-around; */
+  justify-content: center;
 
   /* flex-direction: column; */
 `;
@@ -27,10 +28,12 @@ const Text = styled(motion.div)`
   color: whitesmoke;
   font-weight: 300;
   font-size: 1vw;
-  padding: 3vw;
+  margin: auto 0;
   width: 50%;
 `;
-const Image = styled(motion.div)``;
+const Image = styled(motion.div)`
+  padding: 3vw;
+`;
 
 export default function About({ data }: PageProps<Queries.myImageQuery>) {
   console.log(data);
@@ -49,10 +52,10 @@ export default function About({ data }: PageProps<Queries.myImageQuery>) {
           </Image>
           <Text>
             Hi, I'm Eunsong Kim. <br />I am an illustrator based in South Korea.
-            I play with my inspiration came from the lovely pieces of life like
-            sunny with a nice breeze days and shadows of the mind like spooky
-            rainy days. <br />I am also interested in programm developing. I
-            built this portfolio website by Typescript and other data management
+            I've been inspired by the lovely pieces of life like sunny with a
+            nice breeze days and shadows of the mind like spooky rainy days.
+            <br />I am also interested in programm developing. I built this
+            portfolio website by Typescript and other data management
             application. <br />
             It brings me joy to meet with you. If you have any other questions
             contact me directly.

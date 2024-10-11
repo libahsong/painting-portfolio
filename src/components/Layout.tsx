@@ -106,7 +106,8 @@ export default function Layout({ children, title }: ILayoutProps) {
       <Contents>{children}</Contents>
       <Footer>
         <div>
-          &copy; Eunsong {new Date().getFullYear()}. All rights reserved.
+          {/* &copy; Eunsong {new Date().getFullYear()}. All rights reserved. */}
+          &copy; Eunsong 2024. All rights reserved.
         </div>
       </Footer>
     </Wrapper>
