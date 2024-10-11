@@ -54,7 +54,7 @@ export default function About({ data }: PageProps<Queries.myImageQuery>) {
             Hi, I'm Eunsong Kim. <br />I am an illustrator based in South Korea.
             I've been inspired by the lovely pieces of life like sunny with a
             nice breeze days and shadows of the mind like spooky rainy days.
-            <br />I am also interested in programm developing. I built this
+            <br />I am also interested in computer programming. I built this
             portfolio website by Typescript and other data management
             application. <br />
             It brings me joy to meet with you. If you have any other questions
